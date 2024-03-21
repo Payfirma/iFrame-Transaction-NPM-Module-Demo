@@ -1,0 +1,119 @@
+<!-- This example shows how you can pass custom CSS for your customer fields through an options array -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>EasyPay Module - Simple Demo with Custom CSS</title>
+</head>
+<body>
+    <!-- Step 1. -- Import PayfirmaIframeTransaction -->
+    <script src="./node_modules/merrco-payfirma-iframe-transaction-module/dist/payfirma-iframe-transaction.bundle.js"></script>
+
+    <div class="main-container">
+        <h1 class="demo-title">EasyPay Module - Developer Demo</h1>
+        <input type="text" class="input-field" placeholder="First Name">
+        <input type="text" class="input-field" placeholder="Last Name">
+        <input type="email" class="input-field" placeholder="Email Address">
+        <!-- Step 2. -- Create container div for credit card fields in your payment form. -->
+        <div id="easypay-container"></div>
+        <button class="pay-button" id="payButton">Pay</button>
+        <div id="loadingIndicator" class="loader" style="display: none;"></div>
+        <div id="tokenResults" style="background: lightgreen;" hidden>
+            <b>Token Result</b>
+            <pre id="cardtoken-result" style="overflow-wrap: break-word;"></pre>
+        </div>
+        <div id="saleResults" style="background: lightgreen;" hidden>
+            <b>Sales Request Result</b>
+            <pre id="sale-result" style="white-space: pre-wrap; word-wrap: break-word;"></pre>
+        </div>
+    </div>
+
+    <script>
+        //-- Step 3. -- Setup and Initialize Easy Pay with your iFrame access token.
+        const apiKey = 'eyJhbGciOiJIUzI1NiJ9.eyJhY2Nlc3NfdG9rZW4iOiJiZTVjNjNhZC1mNDlmLTQ5OTctOWI5OC0xZjBlNmRhY2E5MzIiLCJzY29wZSI6WyJ0cmFuc2FjdGlvbiJdLCJtZXJjaGFudF9pZCI6IjI5NTIwOTg2ZjkiLCJleHAiOjE5NTQ0MTY5MjJ9.5yUx07A26jBI_q2U2BtcC1bXbsBc1bYHhGjwAmbLj3o';
+        
+        //-- Step 3.5. -- (Optional) Options Params. Can set CSS styling for inputs and choose API environment you want to work with..  
+        const options = {  
+            environment: "TEST",
+            style: {
+                input: {
+                    "fontFamily": "robotoregular,Helvetica,Arial,sans-serif",
+                    "fontWeight": "700",
+                    "fontSize": "1em",
+                    "backgroundColor": "#a2d157",
+                    'border': '1px solid #E5E9EC',
+                    'margin-bottom': '10px'
+                }
+            }            
+        };
+        const payment = new PayfirmaIframeTransaction(apiKey, 'easypay-container', options);
+
+        /**
+         * -- Step 4. --
+         * Add event listener to your "Pay" button to Tokenize the card.
+         * After receiving the payment token, securely send it to your server to make the payment API request.
+         * Do not attempt to directly make the payment API call from the client-side, as this can expose sensitive information and violate security standards.
+         **/
+        document.getElementById('payButton').addEventListener('click', () => {
+            ShowLoadingIndicator();
+            payment.getPaymentToken().then((response) => {
+                MakeSalesRequest(response.payment_token); 
+            }).catch((error) => {
+                HandleError();
+            });
+        });
+
+
+        const MakeSalesRequest = (paymentToken) => {
+            // PROD https://apigateway.payfirma.com
+            // SANDBOX https://sandbox-apigateway.payfirma.com
+            // TEST https://test-apigateway.payfirma.com
+            const SALE_API_END_POINT = 'https://test-apigateway.payfirma.com';
+
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+            myHeaders.append("Authorization", "Bearer " + apiKey);
+
+            var raw = JSON.stringify({
+                "amount": 5.00,
+                "payment_token": paymentToken,
+                'first_name': document.querySelector('.input-field[placeholder="First Name"]').value,
+                'last_name': document.querySelector('.input-field[placeholder="Last Name"]').value,
+                "email": document.querySelector('.input-field[placeholder="Email Address"]').value,
+                "sending_receipt": true
+            });
+
+            var requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+            };
+
+            fetch(SALE_API_END_POINT + "/transaction-service/sale/token", requestOptions)
+            .then(response => response.text())
+            .then(result => {
+                document.querySelector('#sale-result').innerText = result;
+                document.querySelector('#cardtoken-result').innerText = paymentToken;
+                document.querySelector('#saleResults').removeAttribute('hidden');
+                document.querySelector('#tokenResults').removeAttribute('hidden');
+            }).catch(error => {
+                alert('Failed Making Sales Request');
+            }).finally(() => {
+                document.getElementById('loadingIndicator').style.display = 'none';
+            });
+        }
+        const ShowLoadingIndicator = () => {
+            document.getElementById('loadingIndicator').style.display = 'block'; 
+            document.querySelector('#saleResults').hidden = true;
+            document.querySelector('#tokenResults').hidden = true;
+        }
+        const HandleError = () => {
+            alert('Error tokenizing card data. ' + error.message);
+            document.getElementById('loadingIndicator').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
