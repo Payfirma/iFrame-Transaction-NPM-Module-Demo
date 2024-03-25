@@ -10,7 +10,7 @@
     <!-- Step 1. -- Import PayfirmaIframeTransaction -->
     <script src="./node_modules/merrco-payfirma-iframe-transaction-module/dist/payfirma-iframe-transaction.bundle.js"></script>
     <div class="main-container">
-        <h1 class="demo-title">EasyPay Module - Simple Demo</h1>
+        <h1 class="demo-title">Merrco Payfirma iFrame Transaction NPM Module Demo - Simple HTML</h1>
         <input type="text" class="input-field" placeholder="First Name">
         <input type="text" class="input-field" placeholder="Last Name">
         <input type="email" class="input-field" placeholder="Email Address">
@@ -94,7 +94,7 @@
             document.querySelector('#tokenResults').hidden = true;
         }
         const HandleError = () => {
-            alert('Error tokenizing card data. ' + error.message);
+            alert('Error tokenizing card data.');
             document.getElementById('loadingIndicator').style.display = 'none';
         }
     </script>
