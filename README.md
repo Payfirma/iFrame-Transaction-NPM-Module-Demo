@@ -1,5 +1,6 @@
 # iFrame-Transaction-NPM-Module-Demo
-Files to demonstrate how to use the Merrco Payfirma Simple Payment Module.
+Files to demonstrate how to use the Merrco Payfirma Simple Payment Module. https://www.npmjs.com/package/merrco-payfirma-simple-pay-module?activeTab=readme
+Install with `npm i merrco-payfirma-simple-pay-module`
 
 ## Basic HTML Demo files
 - Follow source code and comments in the following files
