@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import PayfirmaIframeTransaction from 'merrco-payfirma-iframe-transaction-test-01';
+import PayfirmaIframeTransaction from 'merrco-payfirma-simple-pay-module';
 import './App.css'; 
 
 function App() {
